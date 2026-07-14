@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="A complete interactive seven-day Seoul travel itinerary."
+  />
+
+  <title>7 Days in Seoul — 서울에서의 일주일</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            paper: "#F2EFE7",
+            ink: "#111923",
+            red: "#CF3E32",
+            blue: "#234A78",
+            jade: "#496B61",
+            gold: "#B58C4A"
+          },
+          fontFamily: {
+            sans: ["Manrope", "Noto Sans KR", "sans-serif"],
+            serif: ["Noto Serif KR", "serif"]
+          },
+          boxShadow: {
+            soft: "0 25px 80px rgba(17,25,35,.12)",
+            card: "0 12px 40px rgba(17,25,35,.08)"
+          }
+        }
+      }
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&family=Noto+Serif+KR:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    :root {
+      --paper: #f2efe7;
+      --ink: #111923;
+      --red: #cf3e32;
+      --blue: #234a78;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 7% 12%, rgba(207, 62, 50, 0.08), transparent 28rem),
+        radial-gradient(circle at 92% 38%, rgba(35, 74, 120, 0.07), transparent 32rem),
+        var(--paper);
+    }
+
+    ::selection {
+      color: white;
+      background: var(--red);
+    }
+
+    ::-webkit-scrollbar {
+      width: 9px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #e6e1d6;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      border: 2px solid #e6e1d6;
+      border-radius: 999px;
+      background: #8a867e;
+    }
+
+    .texture {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='.2'/%3E%3C/svg%3E");
+    }
+
+    .hero-image {
+      background-image:
+        linear-gradient(90deg, rgba(10, 17, 28, 0.93), rgba(10, 17, 28, 0.54) 52%, rgba(10, 17, 28, 0.15)),
+        linear-gradient(0deg, rgba(10, 17, 28, 0.82), transparent 48%),
+        url("https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=2200&q=90");
+      background-position: center;
+      background-size: cover;
+      animation: cinematicZoom 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes cinematicZoom {
+      from {
+        transform: scale(1);
+      }
+
+      to {
+        transform: scale(1.065);
+      }
+    }
+
+    .glass {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(17, 25, 35, 0.55);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(35px);
+      transition:
+        opacity 800ms cubic-bezier(.2, .7, .2, 1),
+        transform 800ms cubic-bezier(.2, .7, .2, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .day-button {
+      position: relative;
+    }
+
+    .day-button::after {
+      position: absolute;
+      right: 0;
+      bottom: -1px;
+      left: 0;
+      height: 2px;
+      content: "";
+      background: var(--red);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 300ms ease;
+    }
+
+    .day-button.active {
+      color: var(--ink);
+      background: white;
+      box-shadow: 0 10px 30px rgba(17, 25, 35, 0.08);
+    }
+
+    .day-button.active::after {
+      transform: scaleX(1);
+    }
+
+    .day-button.active .day-number {
+      color: white;
+      background: var(--red);
+    }
+
+    .activity-card {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .activity-card::before {
+      position: absolute;
+      inset: -1px;
+      z-index: -1;
+      border-radius: inherit;
+      content: "";
+      background: linear-gradient(
+        135deg,
+        rgba(207, 62, 50, 0.55),
+        transparent 32%,
+        transparent 68%,
+        rgba(35, 74, 120, 0.4)
+      );
+      opacity: 0;
+      transition: opacity 400ms ease;
+    }
+
+    .activity-card:hover::before {
+      opacity: 1;
+    }
+
+    .photo-frame img {
+      transition: transform 900ms cubic-bezier(.2, .7, .2, 1);
+    }
+
+    .photo-frame:hover img {
+      transform: scale(1.06);
+    }
+
+    .photo-caption {
+      transition: transform 400ms ease;
+    }
+
+    .photo-frame:hover .photo-caption {
+      transform: translateY(-5px);
+    }
+
+    .timeline-line {
+      background: linear-gradient(
+        to bottom,
+        transparent,
+        rgba(207, 62, 50, 0.55),
+        rgba(35, 74, 120, 0.5),
+        transparent
+      );
+    }
+
+    #scroll-progress {
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      .hero-image {
+        animation: none;
+      }
+
+      .reveal {
+        opacity: 1;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+
+<body class="overflow-x-hidden font-sans antialiased">
+  <div class="texture pointer-events-none fixed inset-0 z-[100] opacity-[0.025]"></div>
+
+  <!-- Scroll progress -->
+  <div class="fixed left-0 top-0 z-[80] h-[3px] w-full">
+    <div
+      id="scroll-progress"
+      class="h-full w-full bg-gradient-to-r from-red via-gold to-blue"
+    ></div>
+  </div>
+
+  <!-- Fixed navigation -->
+  <nav
+    id="navbar"
+    class="fixed left-1/2 top-4 z-50 w-[calc(100%-2rem)] max-w-7xl -translate-x-1/2 rounded-2xl border border-white/15 bg-ink/70 text-white shadow-soft backdrop-blur-xl transition-all duration-500"
+  >
+    <div class="flex h-16 items-center justify-between px-5 md:px-7">
+      <a href="#home" class="group flex items-center gap-3">
+        <span
+          class="grid h-9 w-9 place-items-center rounded-full border border-white/20 bg-red font-serif text-sm font-bold transition group-hover:rotate-6"
+        >
+          서
+        </span>
+
+        <span>
+          <span class="block font-serif text-sm font-semibold tracking-wide">
+            서울에서의 일주일
+          </span>
+          <span class="block text-[8px] uppercase tracking-[0.28em] text-white/45">
+            Seven Days in Seoul
+          </span>
+        </span>
+      </a>
+
+      <div class="hidden items-center gap-8 text-xs font-semibold uppercase tracking-widest text-white/55 md:flex">
+        <a href="#overview" class="transition hover:text-white">Overview</a>
+        <a href="#itinerary" class="transition hover:text-white">Itinerary</a>
+        <a href="#notes" class="transition hover:text-white">Travel Notes</a>
+      </div>
+
+      <a
+        href="#itinerary"
+        class="rounded-full border border-white/20 px-4 py-2 text-[9px] font-bold uppercase tracking-widest transition hover:border-red hover:bg-red"
+      >
+        View journey
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- Hero -->
+    <section id="home" class="relative flex min-h-screen items-end overflow-hidden bg-ink">
+      <div class="hero-image absolute inset-0"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent"></div>
+
+      <div class="relative mx-auto w-full max-w-7xl px-6 pb-16 pt-32 text-white md:px-10 md:pb-24">
+        <div class="max-w-5xl">
+          <div class="mb-8 flex items-center gap-4">
+            <span class="h-px w-14 bg-red"></span>
+            <p class="text-[10px] font-bold uppercase tracking-[0.35em] text-white/60">
+              Seoul · South Korea · 서울특별시
+            </p>
+          </div>
+
+          <h1 class="font-serif text-[clamp(4rem,11vw,9.5rem)] font-medium leading-[0.82] tracking-[-0.065em]">
+            Seven Days
+            <span class="block text-white/45">in Seoul.</span>
+          </h1>
+
+          <div class="mt-10 grid max-w-4xl gap-8 border-t border-white/20 pt-7 md:grid-cols-[1fr_auto] md:items-end">
+            <p class="max-w-2xl text-base leading-8 text-white/65 md:text-lg">
+              Palaces at sunrise, creative neighborhoods by day and neon streets
+              after dark. A personal itinerary through the traditions, flavors and
+              energy of Seoul.
+            </p>
+
+            <a
+              href="#itinerary"
+              class="group flex w-fit items-center gap-4 font-semibold"
+            >
+              Begin day one
+
+              <span
+                class="grid h-12 w-12 place-items-center rounded-full border border-white/25 transition duration-300 group-hover:translate-y-1 group-hover:border-red group-hover:bg-red"
+              >
+                ↓
+              </span>
+            </a>
+          </div>
+
+          <div class="mt-12 grid max-w-xl grid-cols-3 gap-4">
+            <div>
+              <p class="font-serif text-3xl">07</p>
+              <p class="mt-1 text-[9px] uppercase tracking-[0.25em] text-white/40">
+                Days
+              </p>
+            </div>
+
+            <div>
+              <p class="font-serif text-3xl">21+</p>
+              <p class="mt-1 text-[9px] uppercase tracking-[0.25em] text-white/40">
+                Experiences
+              </p>
+            </div>
+
+            <div>
+              <p class="font-serif text-3xl">01</p>
+              <p class="mt-1 text-[9px] uppercase tracking-[0.25em] text-white/40">
+                City
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass absolute bottom-8 right-8 hidden rounded-2xl px-5 py-4 lg:block">
+        <p class="text-[9px] uppercase tracking-[0.3em] text-white/45">
+          Current Seoul time
+        </p>
+        <p id="seoul-time" class="mt-1 font-serif text-xl">00:00 KST</p>
+      </div>
+    </section>
+
+    <!-- Introduction -->
+    <section id="overview" class="mx-auto max-w-7xl px-6 py-24 md:px-10 md:py-36">
+      <div class="reveal grid gap-12 lg:grid-cols-[0.65fr_1.35fr] lg:gap-24">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-[0.3em] text-red">
+            여행 개요 · Overview
+          </p>
+
+          <p class="mt-5 font-serif text-sm leading-7 text-ink/45">
+            37.5665° N<br />
+            126.9780° E
+          </p>
+        </div>
+
+        <div>
+          <h2 class="font-serif text-4xl font-medium leading-tight tracking-tight md:text-6xl">
+            A week between
+            <span class="text-ink/30">old Seoul and the city becoming next.</span>
+          </h2>
+
+          <p class="mt-8 max-w-2xl leading-8 text-ink/55">
+            The suggested times keep each day practical while leaving room to
+            explore. Copy any address, open it in Maps and follow the city one
+            chapter at a time.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive itinerary -->
+    <section id="itinerary" class="border-t border-ink/10">
+      <div class="mx-auto max-w-7xl px-6 py-24 md:px-10 md:py-32">
+        <div class="reveal mb-14">
+          <p class="text-xs font-bold uppercase tracking-[0.3em] text-red">
+            일주일 일정 · Seven-day itinerary
+          </p>
+
+          <h2 class="mt-5 max-w-4xl font-serif text-4xl font-medium tracking-tight md:text-7xl">
+            Follow the rhythm of the city.
+          </h2>
+        </div>
+
+        <div class="grid gap-10 lg:grid-cols-[250px_1fr] lg:gap-16">
+          <!-- Sticky day selector -->
+          <aside class="sticky top-[82px] z-30 h-fit">
+            <div
+              id="day-navigation"
+              class="flex gap-2 overflow-x-auto rounded-2xl border border-ink/10 bg-paper/90 p-2 shadow-card backdrop-blur-xl lg:flex-col"
+            ></div>
+          </aside>
+
+          <!-- Day content -->
+          <div class="relative">
+            <div
+              class="timeline-line absolute bottom-0 left-[19px] top-0 hidden w-px md:block"
+            ></div>
+
+            <div id="days-container" class="space-y-28"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Travel notes -->
+    <section id="notes" class="border-t border-ink/10 bg-ink text-white">
+      <div class="mx-auto max-w-7xl px-6 py-24 md:px-10 md:py-32">
+        <div class="reveal grid gap-14 lg:grid-cols-[0.8fr_1.2fr]">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.3em] text-red">
+              여행 전 확인 · Before you go
+            </p>
+
+            <h2 class="mt-6 font-serif text-4xl font-medium md:text-6xl">
+              Small details.<br />
+              <span class="text-white/30">Smoother days.</span>
+            </h2>
+          </div>
+
+          <div class="grid gap-px overflow-hidden rounded-2xl bg-white/10 sm:grid-cols-2">
+            <div class="bg-ink p-7 transition hover:bg-white/[0.04]">
+              <span class="text-2xl">宮</span>
+              <h3 class="mt-6 font-serif text-xl">Palace schedule</h3>
+              <p class="mt-3 text-sm leading-7 text-white/45">
+                Gyeongbokgung normally closes on Tuesdays. The guard ceremony
+                may be cancelled because of weather or special events.
+              </p>
+            </div>
+
+            <div class="bg-ink p-7 transition hover:bg-white/[0.04]">
+              <span class="text-2xl">☾</span>
+              <h3 class="mt-6 font-serif text-xl">Seasonal fountain</h3>
+              <p class="mt-3 text-sm leading-7 text-white/45">
+                Banpo's Rainbow Fountain normally operates from April through
+                October and remains weather-dependent.
+              </p>
+            </div>
+
+            <div class="bg-ink p-7 transition hover:bg-white/[0.04]">
+              <span class="text-2xl">◎</span>
+              <h3 class="mt-6 font-serif text-xl">DMZ documents</h3>
+              <p class="mt-3 text-sm leading-7 text-white/45">
+                Reserve the guided tour in advance and carry the original
+                passport used for the reservation.
+              </p>
+            </div>
+
+            <div class="bg-ink p-7 transition hover:bg-white/[0.04]">
+              <span class="text-2xl">香</span>
+              <h3 class="mt-6 font-serif text-xl">Appointments</h3>
+              <p class="mt-3 text-sm leading-7 text-white/45">
+                Reserve the Personal Color Analysis, perfume workshop and facial
+                before traveling. English sessions can fill quickly.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ending -->
+    <section class="relative overflow-hidden bg-[#E7E2D8]">
+      <div class="texture absolute inset-0 opacity-[0.06]"></div>
+
+      <div class="relative mx-auto max-w-7xl px-6 py-28 text-center md:px-10 md:py-40">
+        <p class="text-xs font-bold uppercase tracking-[0.4em] text-red">
+          여행의 끝 · The journey's end
+        </p>
+
+        <h2 class="mt-8 font-serif text-5xl font-medium tracking-tight md:text-8xl">
+          다음에 또 만나요.
+        </h2>
+
+        <p class="mx-auto mt-6 max-w-xl leading-8 text-ink/50">
+          Until next time, Seoul.
+        </p>
+
+        <a
+          href="#home"
+          class="mt-10 inline-flex items-center gap-3 rounded-full border border-ink/20 px-6 py-3 text-xs font-bold uppercase tracking-widest transition hover:border-ink hover:bg-ink hover:text-white"
+        >
+          Return to the beginning
+          <span>↑</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-ink px-6 py-8 text-white/35 md:px-10">
+    <div class="mx-auto flex max-w-7xl flex-col gap-4 text-xs md:flex-row md:items-center md:justify-between">
+      <p>Personal Seoul itinerary · Seven days in South Korea</p>
+      <p>서울에서의 일주일</p>
+    </div>
+  </footer>
+
+  <!-- Copy confirmation -->
+  <div
+    id="toast"
+    role="status"
+    aria-live="polite"
+    class="pointer-events-none fixed bottom-6 left-1/2 z-[90] flex w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 translate-y-8 items-center gap-4 rounded-2xl bg-ink px-5 py-4 text-white opacity-0 shadow-soft transition duration-500"
+  >
+    <span class="grid h-9 w-9 place-items-center rounded-full bg-red text-sm">
+      ✓
+    </span>
+
+    <div class="min-w-0">
+      <p class="text-sm font-semibold">Address copied</p>
+      <p id="toast-text" class="mt-0.5 truncate text-xs text-white/45"></p>
+    </div>
+  </div>
+
+  <script>
+    const fallbackImage =
+      "https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=1600&q=85";
+
+    const itinerary = [
+      {
+        day: 1,
+        short: "Tradition",
+        korean: "궁궐과 전통 골목",
+        title: "Palaces & Traditional Streets",
+        caption: "Royal Seoul framed by tiled roofs and quiet Hanok lanes.",
+        image:
+          "https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=1600&q=85",
+        activities: [
+          {
+            time: "09:00",
+            period: "Morning",
+            title: "Hanbok & Gyeongbokgung Palace",
+            korean: "경복궁",
+            description:
+              "Rent a Hanbok near the palace before exploring its courtyards, throne halls and mountain-framed gates. Arrive early enough for the Changing of the Guard.",
+            address: "161 Sajik-ro, Jongno-gu, Seoul",
+            note:
+              "Guard ceremony is normally held at 10:00 and 14:00. The palace usually closes Tuesday."
+          },
+          {
+            time: "13:00",
+            period: "Afternoon",
+            title: "Bukchon Hanok Village",
+            korean: "북촌한옥마을",
+            description:
+              "Wander through winding residential alleys, preserved Hanok houses, craft stores and traditional tea rooms.",
+            address: "37 Gyedong-gil, Jongno-gu, Seoul",
+            note:
+              "Keep voices low because Bukchon remains a residential neighborhood."
+          },
+          {
+            time: "17:30",
+            period: "Evening",
+            title: "Ikseon-dong & Korean BBQ",
+            korean: "익선동",
+            description:
+              "Explore hidden cafés inside restored Hanok buildings before moving toward the neighborhood's smoky Korean BBQ alley.",
+            address: "17-26 Supyo-ro 28-gil, Jongno-gu, Seoul",
+            note:
+              "Explore the café lanes first, then choose a Korean BBQ restaurant along the block."
+          }
+        ]
+      },
+
+      {
+        day: 2,
+        short: "K-Culture",
+        korean: "케이컬처와 홍대",
+        title: "K-Culture & Pop Vibes",
+        caption: "Books, color, street style and Hongdae after dark.",
+        image:
+          "https://images.unsplash.com/photo-1538669715315-155098f0fb1d?auto=format&fit=crop&w=1600&q=85",
+        activities: [
+          {
+            time: "10:30",
+            period: "Morning",
+            title: "Starfield Library at COEX",
+            korean: "별마당 도서관",
+            description:
+              "Photograph the iconic floor-to-ceiling bookshelves and open atrium before the mall reaches its busiest hours.",
+            address:
+              "B1, Starfield COEX Mall, 513 Yeongdong-daero, Gangnam-gu, Seoul",
+            note:
+              "The library is located inside COEX Mall and is free to enter."
+          },
+          {
+            time: "14:00",
+            period: "Afternoon",
+            title: "Hongdae Shopping Streets",
+            korean: "홍대",
+            description:
+              "Explore independent fashion stores, accessories, cosmetics shops, cafés and creative spaces around Hongik University.",
+            address: "20 Hongik-ro, Mapo-gu, Seoul",
+            note:
+              "Use this location as the starting point for the surrounding shopping streets."
+          },
+          {
+            time: "16:30",
+            period: "Appointment",
+            title: "Personal Color Analysis",
+            korean: "퍼스널 컬러",
+            description:
+              "Discover the clothing, makeup and accessory colors that best complement your natural undertone and contrast.",
+            address:
+              "3F Yongpyeong Building, 209 Donggyo-ro, Mapo-gu, Seoul",
+            note:
+              "Suggested studio: Color of You. Reserve an English-language session in advance."
+          },
+          {
+            time: "19:00",
+            period: "Evening",
+            title: "Hongdae Street Food & Busking",
+            korean: "홍대 버스킹",
+            description:
+              "Follow the music through food stalls, dance circles, live bands and the energetic pedestrian streets of Hongdae.",
+            address: "20 Hongik-ro, Mapo-gu, Seoul",
+            note:
+              "Busking performances vary depending on the day, weather and local events."
+          }
+        ]
+      },
+
+      {
+        day: 3,
+        short: "City Views",
+        korean: "서울 전망과 시장",
+        title: "City Views & Market Madness",
+        caption: "From the mountain skyline to the flavors of old Seoul.",
+        image:
+          "https://images.unsplash.com/photo-1570191913384-7df2c8b17e87?auto=format&fit=crop&w=1600&q=85",
+        activities: [
+          {
+            time: "09:30",
+            period: "Morning",
+            title: "Namsan Cable Car & N Seoul Tower",
+            korean: "남산서울타워",
+            description:
+              "Ride the cable car up Namsan, continue to the tower and take in a panoramic view of Seoul from the observatory.",
+            address: "83 Sopa-ro, Jung-gu, Seoul",
+            note:
+              "This is the cable-car station. N Seoul Tower is located at 105 Namsangongwon-gil."
+          },
+          {
+            time: "13:30",
+            period: "Afternoon",
+            title: "Namdaemun Market",
+            korean: "남대문시장",
+            description:
+              "Shop for souvenirs and taste tteokbokki, hotteok, dumplings and handmade kalguksu inside the historic market.",
+            address: "21 Namdaemunsijang 4-gil, Jung-gu, Seoul",
+            note:
+              "Individual stalls and market sections maintain different operating hours."
+          },
+          {
+            time: "18:30",
+            period: "Evening",
+            title: "Cheonggyecheon Stream",
+            korean: "청계천",
+            description:
+              "Walk beside the restored urban stream as its bridges, stepping stones and surrounding towers begin to illuminate.",
+            address: "1 Cheonggyecheon-ro, Jongno-gu, Seoul",
+            note:
+              "Begin at Cheonggye Plaza and follow the stream east."
+          }
+        ]
+      },
+
+      {
+        day: 4,
+        short: "Trendsetting",
+        korean: "성수와 을지로",
+        title: "Trendsetting & Rooftop Cafés",
+        caption: "Factories reborn as boutiques, bakeries and hidden bars.",
+        image:
+          "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=1600&q=85",
+        activities: [
+          {
+            time: "10:00",
+            period: "Morning",
+            title: "Seongsu-dong",
+            korean: "성수동",
+            description:
+              "Spend the morning exploring experimental boutiques, pop-up stores, design studios and converted industrial spaces.",
+            address: "300 Achasan-ro, Seongdong-gu, Seoul",
+            note:
+              "Begin near Seongsu Station and explore the surrounding side streets."
+          },
+          {
+            time: "14:00",
+            period: "Afternoon",
+            title: "Café Onion Seongsu",
+            korean: "카페 어니언 성수",
+            description:
+              "Enjoy artisan coffee and pastries inside the famous former metal factory, preserved with a raw industrial aesthetic.",
+            address: "8 Achasan-ro 9-gil, Seongdong-gu, Seoul",
+            note:
+              "Queues are common during weekends and peak afternoon hours."
+          },
+          {
+            time: "19:30",
+            period: "Evening",
+            title: "Euljiro Bars & Nogari Alley",
+            korean: "을지로 노가리골목",
+            description:
+              "Enter aging office buildings and printing alleys to find experimental cocktail bars, rooftops and local beer tables.",
+            address: "12 Chungmu-ro 9-gil, Jung-gu, Seoul",
+            note:
+              "Many hidden venues are upstairs and have very little exterior signage."
+          }
+        ]
+      },
+
+      {
+        day: 5,
+        short: "Skyline",
+        korean: "현대 서울과 한강",
+        title: "Modern Skyline & Nature",
+        caption: "Glass towers, river breeze and sunset over the Hangang.",
+        image:
+          "https://images.unsplash.com/photo-1517154421773-0529f29ea451?auto=format&fit=crop&w=1600&q=85",
+        activities: [
+          {
+            time: "10:30",
+            period: "Morning",
+            title: "Seoul Sky at Lotte World Tower",
+            korean: "서울스카이",
+            description:
+              "Ride the high-speed elevator to the observatory and step onto the glass-floor Sky Deck above the city.",
+            address: "300 Olympic-ro, Songpa-gu, Seoul",
+            note:
+              "Seoul Sky occupies floors 117–123. A timed ticket is recommended."
+          },
+          {
+            time: "14:30",
+            period: "Afternoon",
+            title: "Hangang Park",
+            korean: "한강공원",
+            description:
+              "Rent a bicycle, walk beside the river and prepare convenience-store ramyeon for the classic Seoul picnic experience.",
+            address: "330 Yeouidong-ro, Yeongdeungpo-gu, Seoul",
+            note:
+              "This address leads to Yeouido Hangang Park."
+          },
+          {
+            time: "19:30",
+            period: "Evening",
+            title: "Banpo Rainbow Fountain",
+            korean: "반포대교 달빛무지개분수",
+            description:
+              "Watch the Moonlight Rainbow Fountain—or a scheduled Han River drone show—as the sun disappears behind Seoul.",
+            address: "647 Banpo-dong, Seocho-gu, Seoul",
+            note:
+              "The fountain is seasonal and weather-dependent. Drone shows are only held on selected dates."
+          }
+        ]
+      },
+
+      {
+        day: 6,
+        short: "History",
+        korean: "역사와 분단",
+        title: "History & Division",
+        caption: "A reflective journey beyond Seoul, followed by complete rest.",
+        image:
+          "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=1600&q=85",
+        activities: [
+          {
+            time: "06:30",
+            period: "Morning & Afternoon",
+            title: "Guided DMZ Tour",
+            korean: "비무장지대",
+            description:
+              "Join a reserved guided tour to Imjingak, the Third Infiltration Tunnel and Dora Observatory before returning to Seoul.",
+            address:
+              "210-358 Je3ttanggul-ro, Gunnae-myeon, Paju-si, Gyeonggi-do",
+            note:
+              "The operator will confirm your Seoul pickup point. Bring your original passport."
+          },
+          {
+            time: "18:30",
+            period: "Evening",
+            title: "Traditional Jjimjilbang",
+            korean: "찜질방",
+            description:
+              "Recover with hot baths, heated rooms, sikhye, sauna eggs and a complete Korean spa experience.",
+            address:
+              "B3F, Goodmorning City, 247 Jangchungdan-ro, Jung-gu, Seoul",
+            note:
+              "Suggested location: SPAREX Dongdaemun."
+          }
+        ]
+      },
+
+      {
+        day: 7,
+        short: "K-Beauty",
+        korean: "케이뷰티와 작별",
+        title: "K-Beauty & Farewell",
+        caption: "Skincare, a signature scent and one final Seoul night.",
+        image:
+          "https://images.unsplash.com/photo-1578648582962-f62e50eacdc5?auto=format&fit=crop&w=1600&q=85",
+        activities: [
+          {
+            time: "10:00",
+            period: "Morning",
+            title: "Myeong-dong Beauty Run",
+            korean: "명동",
+            description:
+              "Browse the bustling alleys for Korean skincare, makeup, sheet masks, fashion and final souvenirs.",
+            address: "66 Eulji-ro, Jung-gu, Seoul",
+            note:
+              "Use the Myeong-dong Tourist Information Center as your starting point."
+          },
+          {
+            time: "14:30",
+            period: "Afternoon",
+            title: "Custom Perfume Workshop",
+            korean: "향수 만들기",
+            description:
+              "Create a personal fragrance from selected top, middle and base notes—or substitute this session for a K-Beauty facial.",
+            address: "19-7 Bukchon-ro 5-gil, Jongno-gu, Seoul",
+            note:
+              "Suggested workshop: Aromind. An advance reservation is recommended."
+          },
+          {
+            time: "18:30",
+            period: "Evening",
+            title: "Final Chimaek Dinner",
+            korean: "치맥",
+            description:
+              "End the journey with crispy Korean fried chicken and beer while looking back on seven days across Seoul.",
+            address: "21 Myeongdong 7-gil, Jung-gu, Seoul",
+            note:
+              "Suggested location: BHC Chicken Myeongdong Main Branch."
+          }
+        ]
+      }
+    ];
+
+    const daysContainer = document.getElementById("days-container");
+    const dayNavigation = document.getElementById("day-navigation");
+    const toast = document.getElementById("toast");
+    const toastText = document.getElementById("toast-text");
+
+    function mapURL(address) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+    }
+
+    function renderNavigation() {
+      dayNavigation.innerHTML = itinerary
+        .map(
+          (day) => `
+            <button
+              type="button"
+              aria-label="Go to day ${day.day}"
+              data-day-button="${day.day}"
+              class="day-button ${day.day === 1 ? "active" : ""}
+              flex min-w-[145px] items-center gap-3 rounded-xl px-3 py-3
+              text-left text-ink/45 transition duration-300
+              hover:bg-white hover:text-ink lg:min-w-0"
+            >
+              <span
+                class="day-number grid h-9 w-9 shrink-0 place-items-center
+                rounded-full bg-ink/5 font-serif text-xs transition"
+              >
+                ${String(day.day).padStart(2, "0")}
+              </span>
+
+              <span>
+                <span class="block text-[9px] font-bold uppercase tracking-widest">
+                  Day ${day.day}
+                </span>
+                <span class="mt-0.5 block whitespace-nowrap text-xs">
+                  ${day.short}
+                </span>
+              </span>
+            </button>
+          `
+        )
+        .join("");
+    }
+
+    function renderDays() {
+      daysContainer.innerHTML = itinerary
+        .map(
+          (day) => `
+            <article
+              id="day-${day.day}"
+              data-day-section="${day.day}"
+              class="day-section reveal relative scroll-mt-28 md:pl-16"
+            >
+              <div
+                class="absolute left-0 hidden h-10 w-10 place-items-center
+                rounded-full border border-red/50 bg-paper font-serif text-xs
+                font-bold text-red shadow-card md:grid"
+              >
+                ${String(day.day).padStart(2, "0")}
+              </div>
+
+              <header class="mb-8">
+                <div class="flex flex-wrap items-center gap-3">
+                  <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-red">
+                    Day ${String(day.day).padStart(2, "0")}
+                  </p>
+
+                  <span class="h-px w-8 bg-ink/15"></span>
+
+                  <p class="font-serif text-xs text-ink/40">
+                    ${day.korean}
+                  </p>
+                </div>
+
+                <h3 class="mt-4 font-serif text-3xl font-medium tracking-tight md:text-5xl">
+                  ${day.title}
+                </h3>
+              </header>
+
+              <figure
+                class="photo-frame group relative mb-6 overflow-hidden
+                rounded-3xl bg-ink shadow-card"
+              >
+                <div class="aspect-[16/7] overflow-hidden">
+                  <img
+                    src="${day.image}"
+                    alt="${day.title} in Seoul"
+                    loading="lazy"
+                    class="h-full w-full object-cover opacity-90"
+                    onerror="this.onerror=null;this.src='${fallbackImage}'"
+                  />
+                </div>
+
+                <div
+                  class="absolute inset-0 bg-gradient-to-t
+                  from-ink/90 via-transparent to-transparent"
+                ></div>
+
+                <figcaption
+                  class="photo-caption absolute bottom-0 left-0 right-0
+                  flex items-end justify-between gap-5 p-6 text-white md:p-8"
+                >
+                  <div>
+                    <p class="text-[9px] font-bold uppercase tracking-[0.3em] text-white/45">
+                      Photo journal · Seoul
+                    </p>
+
+                    <p class="mt-2 font-serif text-lg md:text-2xl">
+                      ${day.caption}
+                    </p>
+                  </div>
+
+                  <span
+                    class="hidden h-11 w-11 shrink-0 place-items-center
+                    rounded-full border border-white/25 text-sm md:grid"
+                  >
+                    ↗
+                  </span>
+                </figcaption>
+              </figure>
+
+              <div class="grid gap-4">
+                ${day.activities
+                  .map(
+                    (activity, index) => `
+                      <div
+                        class="activity-card rounded-2xl bg-white p-5
+                        shadow-card transition duration-500 hover:-translate-y-1
+                        hover:shadow-soft md:p-7"
+                      >
+                        <div class="grid gap-6 md:grid-cols-[110px_1fr]">
+                          <div>
+                            <p class="font-serif text-2xl text-red">
+                              ${activity.time}
+                            </p>
+
+                            <p
+                              class="mt-1 text-[9px] font-bold uppercase
+                              tracking-[0.23em] text-ink/35"
+                            >
+                              ${activity.period}
+                            </p>
+                          </div>
+
+                          <div>
+                            <div
+                              class="flex flex-col justify-between gap-3
+                              sm:flex-row sm:items-start"
+                            >
+                              <div>
+                                <p class="font-serif text-xs text-blue">
+                                  ${activity.korean}
+                                </p>
+
+                                <h4 class="mt-1 font-serif text-xl font-semibold md:text-2xl">
+                                  ${activity.title}
+                                </h4>
+                              </div>
+
+                              <span
+                                class="grid h-9 w-9 shrink-0 place-items-center
+                                rounded-full bg-paper text-xs text-ink/40"
+                              >
+                                ${String(index + 1).padStart(2, "0")}
+                              </span>
+                            </div>
+
+                            <p class="mt-4 max-w-3xl text-sm leading-7 text-ink/55">
+                              ${activity.description}
+                            </p>
+
+                            <div
+                              class="mt-6 rounded-xl border border-ink/10
+                              bg-paper/55 p-4"
+                            >
+                              <p
+                                class="text-[9px] font-bold uppercase
+                                tracking-[0.24em] text-ink/35"
+                              >
+                                Address
+                              </p>
+
+                              <div
+                                class="mt-2 flex flex-col gap-3 sm:flex-row
+                                sm:items-center sm:justify-between"
+                              >
+                                <address
+                                  class="not-italic text-sm font-medium
+                                  leading-6 text-ink/75"
+                                >
+                                  ${activity.address}
+                                </address>
+
+                                <div class="flex shrink-0 gap-2">
+                                  <button
+                                    type="button"
+                                    data-copy-address="${activity.address.replace(/"/g, "&quot;")}"
+                                    class="copy-button rounded-full border
+                                    border-ink/15 px-4 py-2 text-[9px] font-bold
+                                    uppercase tracking-widest transition
+                                    hover:border-red hover:bg-red hover:text-white"
+                                  >
+                                    Copy
+                                  </button>
+
+                                  <a
+                                    href="${mapURL(activity.address)}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="rounded-full bg-ink px-4 py-2
+                                    text-[9px] font-bold uppercase tracking-widest
+                                    text-white transition hover:bg-blue"
+                                  >
+                                    Map ↗
+                                  </a>
+                                </div>
+                              </div>
+                            </div>
+
+                            <p class="mt-4 flex gap-2 text-xs leading-6 text-ink/40">
+                              <span class="text-red">●</span>
+                              <span>${activity.note}</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    `
+                  )
+                  .join("")}
+              </div>
+            </article>
+          `
+        )
+        .join("");
+    }
+
+    renderNavigation();
+    renderDays();
+
+    function showToast(address) {
+      toastText.textContent = address;
+
+      toast.classList.remove(
+        "pointer-events-none",
+        "translate-y-8",
+        "opacity-0"
+      );
+
+      toast.classList.add("translate-y-0", "opacity-100");
+
+      clearTimeout(showToast.timeout);
+
+      showToast.timeout = setTimeout(() => {
+        toast.classList.add(
+          "pointer-events-none",
+          "translate-y-8",
+          "opacity-0"
+        );
+
+        toast.classList.remove("translate-y-0", "opacity-100");
+      }, 2600);
+    }
+
+    async function copyAddress(address) {
+      try {
+        await navigator.clipboard.writeText(address);
+      } catch (error) {
+        const textarea = document.createElement("textarea");
+        textarea.value = address;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+      }
+
+      showToast(address);
+    }
+
+    document.addEventListener("click", (event) => {
+      const copyButton = event.target.closest(".copy-button");
+
+      if (copyButton) {
+        copyAddress(copyButton.dataset.copyAddress);
+      }
+
+      const dayButton = event.target.closest("[data-day-button]");
+
+      if (dayButton) {
+        document
+          .getElementById(`day-${dayButton.dataset.dayButton}`)
+          ?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+      }
+    });
+
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          entry.target.classList.add("visible");
+          revealObserver.unobserve(entry.target);
+        });
+      },
+      {
+        threshold: 0.1
+      }
+    );
+
+    document.querySelectorAll(".reveal").forEach((element) => {
+      revealObserver.observe(element);
+    });
+
+    const daySections = document.querySelectorAll(".day-section");
+    const dayButtons = document.querySelectorAll("[data-day-button]");
+
+    const dayObserver = new IntersectionObserver(
+      (entries) => {
+        const visibleEntries = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (!visibleEntries.length) return;
+
+        const activeDay = visibleEntries[0].target.dataset.daySection;
+
+        dayButtons.forEach((button) => {
+          button.classList.toggle(
+            "active",
+            button.dataset.dayButton === activeDay
+          );
+        });
+      },
+      {
+        rootMargin: "-25% 0px -55% 0px",
+        threshold: [0.05, 0.25, 0.5]
+      }
+    );
+
+    daySections.forEach((section) => {
+      dayObserver.observe(section);
+    });
+
+    const scrollProgress = document.getElementById("scroll-progress");
+    const navbar = document.getElementById("navbar");
+
+    function updateScrollEffects() {
+      const scrollableHeight =
+        document.documentElement.scrollHeight - window.innerHeight;
+
+      const progress =
+        scrollableHeight > 0 ? window.scrollY / scrollableHeight : 0;
+
+      scrollProgress.style.transform = `scaleX(${progress})`;
+
+      const hasScrolled = window.scrollY > 80;
+
+      navbar.classList.toggle("top-2", hasScrolled);
+      navbar.classList.toggle("top-4", !hasScrolled);
+      navbar.classList.toggle("bg-ink/90", hasScrolled);
+    }
+
+    window.addEventListener("scroll", updateScrollEffects, {
+      passive: true
+    });
+
+    updateScrollEffects();
+
+    function updateSeoulTime() {
+      const seoulTime = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Asia/Seoul",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }).format(new Date());
+
+      document.getElementById("seoul-time").textContent =
+        `${seoulTime} KST`;
+    }
+
+    updateSeoulTime();
+    setInterval(updateSeoulTime, 30000);
+  </script>
+</body>
+</html>
